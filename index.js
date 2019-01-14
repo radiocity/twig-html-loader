@@ -25,6 +25,22 @@ module.exports = function loader(source) {
       Twig.cache(false);
     }
 
+    if (query.functions) {
+      Object.entries(query.functions).forEach(([name, fn]) => Twig.extendFunction(name, fn));
+    }
+
+    if (query.filters) {
+      Object.entries(query.filters).forEach(([name, fn]) => Twig.extendFilter(name, fn));
+    }
+
+    if (query.tests) {
+      Object.entries(query.tests).forEach(([name, fn]) => Twig.extendTest(name, fn));
+    }
+
+    if (query.extend) {
+      Twig.extend(query.extend);
+    }
+
     Twig.extend((Twig) => {
       const defaultSave = Object.assign(Twig.Templates.save);
       // eslint-disable-next-line no-param-reassign

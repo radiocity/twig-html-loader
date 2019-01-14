@@ -40,7 +40,7 @@ module.exports = {
 };
 ```
 
-  
+
 ## Using with html-webpack-plugin
 
 Install plugin:
@@ -49,7 +49,7 @@ Install plugin:
 npm install html-webpack-plugin --save-dev
 ```
 
-Improve your config: 
+Improve your config:
 
 ```js
 const HtmlWebpackPlugin = require('html-webpack-plugin');
@@ -84,6 +84,89 @@ module.exports = {
 |data|object|{}|The data that is exposed in the templates|
 |debug|boolean|false|Enables debug info logging|
 |trace|boolean|false|Enables tracing info logging|
+|functions|object|undefined|Extends Twig with custom functions
+|filters|object|undefined|Extends Twig with custom filters
+|tests|object|undefined|Extends Twig with custom tests
+|extend|function(Twig)|undefined|Extends Twig with custom tags and more
+
+## Custom functions, filters, tests and tags
+
+You can use `functions`, `filters`, `tests` and `extend` options to extend Twig. See [here for adding custom functions, filters and tests](https://github.com/twigjs/twig.js/wiki/Extending-twig.js), and [here for adding custom tags](https://github.com/twigjs/twig.js/wiki/Extending-twig.js-With-Custom-Tags).
+
+```js
+module.exports = {
+  // ...
+  rules: [
+    // ...
+    {
+      test: /\.twig$/,
+      use: [
+        'raw-loader',
+        {
+          loader: 'twig-html-loader',
+          options: {
+            functions: {
+              repeat(value, times) {
+                return new Array(times + 1).join(value);
+              }
+            },
+            filters: {
+              backwords(value) {
+                return value.split(' ').reverse().join(' ');
+              }
+            },
+            tests: {
+              theAnswer(value) {
+                return value === 42;
+              }
+            },
+            extend(Twig) {
+              Twig.exports.extendTag({
+                type: 'echo',
+                regex: /^echo\s+(.+)$/,
+                next: [],
+                open: true,
+                compile: function (token) {
+                  var expression = token.match[1];
+
+                  token.stack = Twig.expression.compile.apply(this, [{
+                    type: Twig.expression.type.expression,
+                    value: expression
+                  }]).stack;
+
+                  delete token.match;
+                  return token;
+                },
+                parse: function (token, context, chain) {
+                  return {
+                    chain: false,
+                    output: Twig.expression.parse.apply(this, [token.stack, context])
+                  };
+                }
+              });
+            }
+          }
+        }
+      ]
+    }
+    // ...
+  ]
+};
+```
+
+```
+{{ repeat('_.', 10) }}
+{# output: _._._._._._._._._._. #}
+
+{{ 'a quick brown fox'|backwords }}
+{# output: fox brown quick a #}
+
+{% if 42 is theAnswer %}42{% endif %}
+{# output: 42 #}
+
+{% echo 'hello world' %}
+{# output: hello world #}
+```
 
 ## Alternatives
 
