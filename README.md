@@ -81,7 +81,7 @@ module.exports = {
 |Name|Type|Default|Description|
 |--|--|-----|----------|
 |cache|boolean|false|Enables the Twigjs cache|
-|data|object|{}|The data that is exposed in the templates|
+|data|object / function(context)|{}|The data that is exposed in the templates. If it’s a function, it should return an object|
 |debug|boolean|false|Enables debug info logging|
 |trace|boolean|false|Enables tracing info logging|
 |functions|object|undefined|Extends Twig with custom functions

@@ -9,7 +9,7 @@ const registry = [];
 module.exports = function loader(source) {
   try {
     const query = utils.getOptions(this) || {};
-    const data = query.data || {};
+    let data = query.data || {};
     const templateFile = require.resolve(this.resource);
     const options = {
       path: templateFile,
@@ -39,6 +39,10 @@ module.exports = function loader(source) {
 
     if (query.extend) {
       Twig.extend(query.extend);
+    }
+
+    if (typeof data === 'function') {
+      data = data(this);
     }
 
     Twig.extend((Twig) => {
