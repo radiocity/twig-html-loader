@@ -43,6 +43,9 @@ module.exports = function loader(source) {
 
     if (typeof data === 'function') {
       data = data(this);
+      if (typeof data !== 'object') {
+        this.emitError('data parameter should return an object');
+      }
     }
 
     Twig.extend((Twig) => {
@@ -60,6 +63,7 @@ module.exports = function loader(source) {
     registry.forEach(this.addDependency);
 
     Twig.extend((Twig) => {
+      // eslint-disable-next-line no-param-reassign
       Twig.Templates.registry = {};
     });
     return output;
