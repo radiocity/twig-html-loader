@@ -81,13 +81,43 @@ module.exports = {
 |Name|Type|Default|Description|
 |--|--|-----|----------|
 |cache|boolean|false|Enables the Twigjs cache|
-|data|object|{}|The data that is exposed in the templates|
+|data|object or function(context)|{}|The data that is exposed in the templates. Function should return an object'|
 |debug|boolean|false|Enables debug info logging|
 |trace|boolean|false|Enables tracing info logging|
 |functions|object|undefined|Extends Twig with custom functions
 |filters|object|undefined|Extends Twig with custom filters
 |tests|object|undefined|Extends Twig with custom tests
 |extend|function(Twig)|undefined|Extends Twig with custom tags and more
+
+## Watch data from files
+
+``js
+module.exports = {
+  // ...
+  rules: [
+    // ...
+    {
+      test: /\.twig$/,
+      use: [
+        'raw-loader',
+        {
+          loader: 'twig-html-loader',
+          options: {
+            data: (context) => {
+              const data = path.join(__dirname, 'data.json');
+              context.addDependency(data);
+              const result = fs.readFileSync(data);
+              return JSON.parse(result);
+            }
+          }
+        }
+      ]
+    }
+    // ...
+  ]
+};
+```
+Do not use [require](https://nodejs.org/api/modules.html#modules_require_id) function due to file caching.
 
 ## Custom functions, filters, tests and tags
 

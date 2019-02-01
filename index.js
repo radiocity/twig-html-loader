@@ -9,7 +9,7 @@ const registry = [];
 module.exports = function loader(source) {
   try {
     const query = utils.getOptions(this) || {};
-    const data = query.data || {};
+    let data = query.data || {};
     const templateFile = require.resolve(this.resource);
     const options = {
       path: templateFile,
@@ -41,6 +41,13 @@ module.exports = function loader(source) {
       Twig.extend(query.extend);
     }
 
+    if (typeof data === 'function') {
+      data = data(this);
+      if (typeof data !== 'object') {
+        this.emitError('data parameter should return an object');
+      }
+    }
+
     Twig.extend((Twig) => {
       const defaultSave = Object.assign(Twig.Templates.save);
       // eslint-disable-next-line no-param-reassign
@@ -56,6 +63,7 @@ module.exports = function loader(source) {
     registry.forEach(this.addDependency);
 
     Twig.extend((Twig) => {
+      // eslint-disable-next-line no-param-reassign
       Twig.Templates.registry = {};
     });
     return output;

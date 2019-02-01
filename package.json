@@ -1,6 +1,6 @@
 {
   "name": "twig-html-loader",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Twig to html loader for webpack",
   "main": "index.js",
   "scripts": {
