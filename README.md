@@ -91,7 +91,7 @@ module.exports = {
 
 ## Watch data from files
 
-``js
+```js
 module.exports = {
   // ...
   rules: [
