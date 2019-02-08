@@ -106,8 +106,7 @@ module.exports = {
             data: (context) => {
               const data = path.join(__dirname, 'data.json');
               context.addDependency(data);
-              const result = fs.readFileSync(data);
-              return JSON.parse(result);
+              return context.fs.readJsonSync(data, { throws: false }) || {};
             }
           }
         }
