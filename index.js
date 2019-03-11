@@ -3,8 +3,21 @@
 
 const Twig = require('twig');
 const utils = require('loader-utils');
+const path = require('path');
 
-const registry = [];
+// https://github.com/twigjs/twig.js/issues/608
+const normalizeNamespaces = function normalizeNamespacesPathnames(namespaces) {
+  if (namespaces && typeof namespaces !== 'object') {
+    throw new Error('namespaces option should be an object');
+  }
+  const result = namespaces || {};
+  Object.keys(result).forEach((key) => {
+    if (typeof result[key] === 'string') {
+      result[key] += path.sep;
+    }
+  });
+  return result;
+};
 
 module.exports = function loader(source) {
   try {
@@ -19,6 +32,7 @@ module.exports = function loader(source) {
       trace: Boolean(query.trace || false),
       allowInlineIncludes: true,
       rethrow: true,
+      namespaces: normalizeNamespaces(query.namespaces),
     };
 
     if (query.cache !== true) {
@@ -48,11 +62,13 @@ module.exports = function loader(source) {
       }
     }
 
+    const registry = [];
+
     Twig.extend((Twig) => {
       const defaultSave = Object.assign(Twig.Templates.save);
       // eslint-disable-next-line no-param-reassign
       Twig.Templates.save = function customSave(template) {
-        registry.push(template.path);
+        registry.push(path.normalize(template.path));
         return defaultSave.call(this, template);
       };
     });

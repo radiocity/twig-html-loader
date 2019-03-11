@@ -81,9 +81,10 @@ module.exports = {
 |Name|Type|Default|Description|
 |--|--|-----|----------|
 |cache|boolean|false|Enables the Twigjs cache|
-|data|object or function(context)|{}|The data that is exposed in the templates. Function should return an object'|
+|data|object or function(context)|{}|The data that is exposed in the templates. Function should return an object|
 |debug|boolean|false|Enables debug info logging|
 |trace|boolean|false|Enables tracing info logging|
+|namespaces|object|undefined|Add special template path notation (ex.: `@namespace_name/template_path`)|
 |functions|object|undefined|Extends Twig with custom functions
 |filters|object|undefined|Extends Twig with custom filters
 |tests|object|undefined|Extends Twig with custom tests
@@ -105,7 +106,7 @@ module.exports = {
           options: {
             data: (context) => {
               const data = path.join(__dirname, 'data.json');
-              context.addDependency(data);
+              context.addDependency(data); // Force webpack to watch file
               return context.fs.readJsonSync(data, { throws: false }) || {};
             }
           }
@@ -117,6 +118,53 @@ module.exports = {
 };
 ```
 Do not use [require](https://nodejs.org/api/modules.html#modules_require_id) function due to file caching.
+
+## Namespaces
+
+If the application defines lots of templates and stores them in deep nested directories, you may consider using `namespaces`, which create shortcuts to template directories. The registered namespace should be defined with `@` prefix or `::` postfix when using it in templates.
+
+```js
+module.exports = {
+  // ...
+  rules: [
+    // ...
+    {
+      test: /\.twig$/,
+      use: [
+        'raw-loader',
+        {
+          loader: 'twig-html-loader',
+          options: {
+            namespaces: {
+              'layouts': 'path/to/layouts',
+              'components': 'path/to/components',
+            }
+          }
+        }
+      ]
+    }
+    // ...
+  ]
+};
+```
+
+```twig
+{# path/to/layouts/common.twig #}
+<h1>{% block title %}{% endblock %}</h1>
+```
+
+```twig
+{# path/to/components/greeting.twig #}
+Hello, John Doe!
+```
+
+```twig
+{# your-template.twig #}
+{% extends "layouts::common.twig" %}
+{% block body %}
+  {{ include('@components/greeting.twig') }}
+{% endblock %}
+```
 
 ## Custom functions, filters, tests and tags
 
@@ -183,7 +231,7 @@ module.exports = {
 };
 ```
 
-```
+```twig
 {{ repeat('_.', 10) }}
 {# output: _._._._._._._._._._. #}
 
