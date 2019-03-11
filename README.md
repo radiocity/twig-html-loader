@@ -161,7 +161,7 @@ Hello, John Doe!
 ```twig
 {# your-template.twig #}
 {% extends "layouts::common.twig" %}
-{% block body %}
+{% block title %}
   {{ include('@components/greeting.twig') }}
 {% endblock %}
 ```
