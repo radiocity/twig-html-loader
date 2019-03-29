@@ -13,7 +13,8 @@ const normalizeNamespaces = function normalizeNamespacesPathnames(namespaces) {
   const result = namespaces || {};
   Object.keys(result).forEach((key) => {
     if (typeof result[key] === 'string') {
-      result[key] += path.sep;
+      const value = result[key] + path.sep;
+      result[key] = value.replace(/([\/\\]+)$/, path.sep);
     }
   });
   return result;
