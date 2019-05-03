@@ -55,9 +55,11 @@ module.exports = function loader(source) {
     if (query.extend) {
       Twig.extend(query.extend);
     }
-
+    
+    const template = Twig.twig(options);
+    
     if (typeof data === 'function') {
-      data = data(this);
+      data = data(this, Twig, template);
       if (typeof data !== 'object') {
         this.emitError('data parameter should return an object');
       }
@@ -74,7 +76,6 @@ module.exports = function loader(source) {
       };
     });
 
-    const template = Twig.twig(options);
     const output = template.render(data);
 
     registry.forEach(this.addDependency);
