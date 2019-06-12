@@ -69,7 +69,9 @@ module.exports = function loader(source) {
       const defaultSave = Object.assign(Twig.Templates.save);
       // eslint-disable-next-line no-param-reassign
       Twig.Templates.save = function customSave(template) {
-        registry.push(path.normalize(template.path));
+        if (template.path) {
+          registry.push(path.normalize(template.path));
+        }
         return defaultSave.call(this, template);
       };
     });
