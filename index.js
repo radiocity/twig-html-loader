@@ -20,7 +20,35 @@ const normalizeNamespaces = function normalizeNamespacesPathnames(namespaces) {
   return result;
 };
 
+const relativePathsToAbsolutePathsForSourceFn = (str, resourcePath) => {
+  const resourceDir = path.dirname(resourcePath);
+
+  let result = str;
+  let matches;
+  let prevSourceFnArg;
+  let newSourceFnArg;
+  let pattern;
+
+  // eslint-disable-next-line no-constant-condition
+  while (true) {
+    matches = /source\s*\(\s*['"]\s*(\.[^'"]+)['"]\s*\)/g.exec(result);
+    if (matches === null) {
+      break;
+    }
+
+    [, prevSourceFnArg] = matches;
+    newSourceFnArg = `source('${path.resolve(resourceDir, prevSourceFnArg)}')`;
+    pattern = `source\\s*\\(\\s*['"]\\s*${prevSourceFnArg}\\s*['"]\\s*\\)`;
+    result = result.replace(new RegExp(pattern, 'g'), newSourceFnArg);
+  }
+
+  return result;
+};
+
 module.exports = function loader(source) {
+  // eslint-disable-next-line no-param-reassign
+  source = relativePathsToAbsolutePathsForSourceFn(source, this.resourcePath);
+
   try {
     const query = utils.getOptions(this) || {};
     let data = query.data || {};
