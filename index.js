@@ -59,7 +59,7 @@ module.exports = function loader(source) {
       async: false,
       debug: Boolean(query.debug || false),
       trace: Boolean(query.trace || false),
-      allowInlineIncludes: true,
+      allowInlineIncludes: Boolean(query.allowInlineIncludes || false),
       rethrow: true,
       namespaces: normalizeNamespaces(query.namespaces),
     };
